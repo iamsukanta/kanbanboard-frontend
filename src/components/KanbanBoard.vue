@@ -1,0 +1,236 @@
+<template>
+  <div class="root-container">
+    <Loading 
+      :active.sync="isLoading"
+      :is-full-page="true">
+    </Loading>
+    <div class="header">
+      <h1>Kanban Board</h1>
+    </div>
+
+    <div class="filter-section">
+
+    </div>
+
+    <div class="kanban-board">
+      <div class="column-item" v-for="(column,colIndex) in columns" :key="colIndex+column.id">
+        <div class="column-item__header">
+          <div class="column-item__header__title">
+            <p>{{ column.title }}</p>
+          </div>
+          <button type="button" @click="deleteColumn(column.id)" class="column-item__header__delete__button">
+            &times;
+          </button>
+        </div>
+
+        <draggable
+          class="card-drag"
+          v-model="column.cards"
+          v-bind="cardDragOptions"
+          @end="handleCardMoved"
+        >
+          <transition-group
+            class="task-drag-transition"
+            tag="div"
+          >
+            <div class="column-item__card_item"  @click="viewCardModal(cardItem, column.id)" v-for="(cardItem, cardIndex) in column.cards" :key="cardIndex+cardItem.position">
+              <div class="column-item__card_item___title">
+                <p>{{ cardItem.title }}</p>
+              </div>
+            </div>
+          </transition-group>
+        </draggable>
+
+        <div class="add-card">
+          <button type="button" @click="openCardModal(column.id)" class="add-card__button">
+            + Add Card
+          </button>
+        </div>
+      </div>
+      <div class="add-column">
+        <button type="button" @click="openAddColumnModal()" class="add-column__button">
+          + Add Column
+        </button>
+      </div>
+    </div>
+
+    <div class="export-section">
+      <button type="button" @click="exportSql()" class="export-section__button">
+        Export SQL
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Loading from 'vue-loading-overlay';
+  import 'vue-loading-overlay/dist/vue-loading.css';
+  import axios from 'axios';
+  import draggable from 'vuedraggable';
+  import AddColumnModal from './modal/AddColumn.vue';
+  import AddCardModal from './modal/AddCard.vue';
+  import EditCardModal from './modal/EditCard.vue';
+
+  export default {
+    components: {
+      draggable,
+      Loading
+    },
+    computed: {
+      cardDragOptions() {
+        return {
+          animation: 200,
+          group: "card-list",
+          dragClass: "column-drag"
+        };
+      }
+    },
+    data() {
+      return {
+        columns: [],
+        isLoading: false
+      }
+    },
+    mounted() {
+      this.getColumns();
+    },
+    methods: {
+      async getColumns() {
+        this.isLoading = true;
+        axios.get(
+          `${process.env.VUE_APP_API_BASE_URL}/columns?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`
+        )
+        .then((res) => {
+          this.columns = res.data.data;
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          alert('Something went wrong from api: ' + error?.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+      },
+
+      openAddColumnModal() {
+        this.$modal.show(
+          AddColumnModal,
+          {
+            update: this.addNewColumn
+          },
+          {
+            name: "addColumnModal",
+            draggable: true,
+            width: 500,
+            height: 'auto'
+          },
+        );
+      },
+
+      openCardModal(columnId) {
+        this.$modal.show(
+          AddCardModal,
+          {
+            columnId: columnId,
+            update: this.addNewCard
+          },
+          {
+            name: "addCardModal",
+            draggable: true,
+            width: 500,
+            height: 'auto',
+          },
+        );
+      },
+
+      viewCardModal(card, columnId) {
+        this.$modal.show(
+          EditCardModal,
+          {
+            columnId: columnId,
+            cardData: card,
+            update: this.addNewCard
+          },
+          {
+            name: "editCardModal",
+            draggable: true,
+            width: 400,
+            height: 'auto',
+            shiftY: 0.1
+          },
+        );
+      },
+
+      addNewColumn(responseData) {
+        this.columns.push({ ...responseData, cards: []});
+      },
+
+      deleteColumn(columnId) {
+        this.isLoading = true;
+        axios.delete(
+          `${process.env.VUE_APP_API_BASE_URL}/columns/${columnId}?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`
+        )
+        .then(() => {
+          let index = this.columns.findIndex(x => x.id === columnId);
+          this.columns.splice(index, 1);
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          alert('Something went wrong when deleting:' + error?.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+      },
+
+      addNewCard(card_data, columnId, actionType) {
+        let columnIndex = this.columns.findIndex(x => x.id === columnId);
+        if(actionType == 'edit') {
+          let cardIndex = this.columns[columnIndex].cards.findIndex(x => x.id == card_data.id);
+          this.columns[columnIndex].cards.splice(cardIndex, 1, card_data);
+        } else {
+          this.columns[columnIndex].cards.push(card_data);
+        }
+      },
+
+      handleCardMoved() {
+        axios.put(
+          `${process.env.VUE_APP_API_BASE_URL}/columns/rearrange?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, {columns: this.columns}
+        )
+        .then(() => {
+        })
+        .catch((error) => {
+          alert('Something went wrong from api: ' + error?.message);
+        })
+        .finally(() => {
+        });  
+      },
+
+      exportSql() {
+        this.isLoading = true;
+        axios.get(
+          `${process.env.VUE_APP_API_BASE_URL}/export/db?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`
+        )
+        .then((res) => {
+          return this.generateSqlFile(res.data);
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          alert('Something went wrong from api: ' + error?.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });  
+      },
+
+      generateSqlFile(sqlContent) {
+        let fileNo = Math.floor(Math.random() * 1001);
+        const blob = new Blob([sqlContent], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `data_${fileNo}.sql`;
+        link.click();
+      }
+    }
+  }
+</script>
