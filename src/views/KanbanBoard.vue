@@ -48,7 +48,7 @@
           class="card-drag"
           v-model="column.cards"
           v-bind="cardDragOptions"
-          @end="handleCardMoved"
+          @change="handleCardMoved"
         >
           <transition-group
             class="task-drag-transition"
@@ -245,7 +245,10 @@
         }
       },
 
-      handleCardMoved() {
+
+      handleCardMoved(event) {
+        if(!event || event.removed) return false;
+
         axios.put(
           `${process.env.VUE_APP_API_BASE_URL}/columns/rearrange?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, {columns: this.columns}
         )
