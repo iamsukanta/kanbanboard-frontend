@@ -123,11 +123,11 @@
     },
     mounted() {
       const routeParams = { ...this.$route.query };
-      if(routeParams.status) {
-        this.filter.status = routeParams.status;
+      if(Object.prototype.hasOwnProperty.call(routeParams, 'status')) {
+        this.filter.status = routeParams?.status;
       }
-      if(routeParams.date) {
-        this.filter.date = routeParams.date;
+      if(Object.prototype.hasOwnProperty.call(routeParams, 'date')) {
+        this.filter.date = routeParams?.date;
       }
       this.getColumns();
     },
@@ -157,13 +157,16 @@
       },
 
       filterColumnsByStatusAndDate() {
-        const currentParams = { ...this.$route.query };
-        currentParams.date = this.filter.date;
-        currentParams.state = this.filter.status;
-        this.$router.push({ 
-          path: '/',
-          query: currentParams,
-        });
+        const currentParams = {};
+        if((currentParams.date != this.filter.date) || (currentParams.status != this.filter.status)) {
+          currentParams.date = this.filter.date;
+          currentParams.status = this.filter.status;
+
+          this.$router.push({ 
+            path: '/',
+            query: currentParams,
+          });
+        }
         this.getColumns();
       },
 
