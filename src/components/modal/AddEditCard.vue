@@ -4,14 +4,14 @@
       :active.sync="isLoading"
       :is-full-page="true">
     </Loading>
-    <p class="modal-content__title">Create New Card</p>
-    <hr/>
+    <p class="modal-content__title">{{ card?.id ? 'Edit':'Add New' }} Card</p>
+    <hr />
     <form class="modal-content__form" @submit.prevent="handleCard">
       <div class="input-group">
         <label for="title">
           Card Title <span>*</span>
         </label>
-        <input class="input-title" type="text" id="title" placeholder="Title" v-model="card.title" @input="handleChange('title')" />
+        <input class="input-group__input" type="text" id="title" placeholder="Card Title" v-model="card.title" @input="handleChange('title')" />
         <div v-show="errorMessage.title">
           <span class="input-group__text-error">
             {{ errorMessage.title }}
@@ -23,7 +23,7 @@
         <label for="description">
           Card Description <span>*</span>
         </label>
-        <textarea class="input-title" type="text" id="description" placeholder="Description" v-model="card.description" @input="handleChange('description')"></textarea>
+        <textarea class="input-group__input" type="text" id="description" rows="6" placeholder="Card Description" v-model="card.description" @input="handleChange('description')"></textarea>
         <div v-show="errorMessage.description">
           <span class="input-group__text-error">
             {{ errorMessage.description }}
@@ -36,7 +36,7 @@
           Cancel
         </button>
         <button type="submit" class="modal-button-group__submit-button">
-          + Add Card
+          Edit Card
         </button>
       </div>
     </form>
@@ -50,17 +50,14 @@ import axios from 'axios';
 export default {
   props: {
     columnId: Number,
+    cardData: {},
   },
   components: {
     Loading
   },
   data() {
     return {
-      card: {
-        id: null,
-        title: "",
-        description: ""
-      },
+      card: {...this.cardData },
       errorMessage: {
         title: "",
         description: ""
@@ -86,21 +83,39 @@ export default {
       }
 
       this.isLoading = true;
-      axios.post(
-        `${process.env.VUE_APP_API_BASE_URL}/columns/${this.columnId}/cards?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, this.card
-      )
-      .then((res) => {
-        this.$attrs.update(res.data.data, this.columnId, 'create');
-        this.$emit("close");
-      })
-      .catch((error) => {
-        this.isLoading = false;
-        alert('Something went wrong from api: ' + error?.message);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
+      if(this.card?.id) {
+        axios.put(
+          `${process.env.VUE_APP_API_BASE_URL}/columns/${this.columnId}/cards/${this.card.id}?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, this.card
+        )
+        .then((res) => {
+          this.$attrs.update(res.data.data, this.columnId, 'edit');
+          this.$emit("close");
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          alert('Something went wrong from api: ' + error?.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+      } else {
+        axios.post(
+          `${process.env.VUE_APP_API_BASE_URL}/columns/${this.columnId}/cards?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, this.card
+        )
+        .then((res) => {
+          this.$attrs.update(res.data.data, this.columnId, 'create');
+          this.$emit("close");
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          alert('Something went wrong from api: ' + error?.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+      }
     },
+
     handleChange(value) {
       if(value == 'title') {
         if (!this.card.title) {

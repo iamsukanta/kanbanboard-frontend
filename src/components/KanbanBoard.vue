@@ -4,12 +4,12 @@
       :active.sync="isLoading"
       :is-full-page="true">
     </Loading>
-    <div class="header">
+    <div class="root-container__header">
       <h1>Kanban Board</h1>
     </div>
 
     <!-- Filter section goes heres -->
-    <div class="filter-section">
+    <div class="root-container__filter-section">
     </div>
 
     <div class="kanban-board">
@@ -68,8 +68,7 @@
   import axios from 'axios';
   import draggable from 'vuedraggable';
   import AddColumnModal from './modal/AddColumn.vue';
-  import AddCardModal from './modal/AddCard.vue';
-  import EditCardModal from './modal/EditCard.vue';
+  import AddEditCardModal from './modal/AddEditCard.vue';
 
   export default {
     components: {
@@ -133,13 +132,14 @@
 
       openCardModal(columnId) {
         this.$modal.show(
-          AddCardModal,
+          AddEditCardModal,
           {
             columnId: columnId,
+            cardData: {},
             update: this.addNewCard
           },
           {
-            name: "addCardModal",
+            name: "addEditCardModal",
             ...this.modalOptions
           },
         );
@@ -147,14 +147,14 @@
 
       viewCardModal(card, columnId) {
         this.$modal.show(
-          EditCardModal,
+          AddEditCardModal,
           {
             columnId: columnId,
             cardData: card,
             update: this.addNewCard
           },
           {
-            name: "editCardModal",
+            name: "addEditCardModal",
             ...this.modalOptions
           },
         );

@@ -11,7 +11,7 @@
         <label for="title">
           Column Title <span>*</span>
         </label>
-        <input class="input-title" type="text" id="title" placeholder="Title" v-model="newColumn.title" @input="handleChange">
+        <input class="input-group__input" type="text" id="title" placeholder="Title" v-model="newColumn.title" @input="handleChange">
         <div v-show="errorMessage">
           <span class="input-group__text-error">
             {{ errorMessage }}
