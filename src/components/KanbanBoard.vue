@@ -8,8 +8,8 @@
       <h1>Kanban Board</h1>
     </div>
 
+    <!-- Filter section goes heres -->
     <div class="filter-section">
-
     </div>
 
     <div class="kanban-board">
@@ -88,7 +88,13 @@
     data() {
       return {
         columns: [],
-        isLoading: false
+        isLoading: false,
+        modalOptions: {
+          draggable: true,
+          width: 500,
+          height: 'auto',
+          adaptive: true
+        }
       }
     },
     mounted() {
@@ -120,9 +126,7 @@
           },
           {
             name: "addColumnModal",
-            draggable: true,
-            width: 500,
-            height: 'auto'
+            ...this.modalOptions
           },
         );
       },
@@ -136,9 +140,7 @@
           },
           {
             name: "addCardModal",
-            draggable: true,
-            width: 500,
-            height: 'auto',
+            ...this.modalOptions
           },
         );
       },
@@ -153,10 +155,7 @@
           },
           {
             name: "editCardModal",
-            draggable: true,
-            width: 400,
-            height: 'auto',
-            shiftY: 0.1
+            ...this.modalOptions
           },
         );
       },

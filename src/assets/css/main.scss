@@ -8,7 +8,7 @@ body {
   background-color: #FAFAFA;
 
   .root-container {
-    padding: 60px 50px;
+    padding: 40px 50px;
     display: flex;
     flex-direction: column;
     .header {
@@ -23,16 +23,15 @@ body {
     }
 
     .kanban-board {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: row;
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 20px;
 
       .column-item {
         display: flex;
         flex-direction: column;
         padding: 10px;
-        width: 16%;
         border-radius: 10px;
         background-color: #101204;
         color: #B6C2CF;
@@ -93,7 +92,6 @@ body {
       }
 
       .add-column {
-        width: 16%;
         text-align: center;
         .add-column__button {
           width: 100%;
@@ -113,9 +111,9 @@ body {
     }
 
     .export-section {
-      margin-top: 50px;
+      margin-top: 80px;
       display: flex;
-      // justify-content: flex-end;
+      justify-content: flex-start;
       .export-section__button {
         border: 0px;
         padding: 15px 25px;

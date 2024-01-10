@@ -5,12 +5,13 @@
       :is-full-page="true">
     </Loading>
     <p class="modal-content__title">Edit Card</p>
+    <hr />
     <form class="modal-content__form" @submit.prevent="handleCard">
       <div class="input-group">
         <label for="title">
           Card Title <span>*</span>
         </label>
-        <input class="input-title" type="text" id="title" placeholder="Title" v-model="card.title" @input="handleChange('title')" />
+        <input class="input-title" type="text" id="title" placeholder="Card Title" v-model="card.title" @input="handleChange('title')" />
         <div v-show="errorMessage.title">
           <span class="input-group__text-error">
             {{ errorMessage.title }}
@@ -22,7 +23,7 @@
         <label for="description">
           Card Description <span>*</span>
         </label>
-        <textarea class="input-title" type="text" id="description" placeholder="Description" v-model="card.description" @input="handleChange('description')"></textarea>
+        <textarea class="input-title" type="text" id="description" rows="6" placeholder="Card Description" v-model="card.description" @input="handleChange('description')"></textarea>
         <div v-show="errorMessage.description">
           <span class="input-group__text-error">
             {{ errorMessage.description }}
