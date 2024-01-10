@@ -33,6 +33,7 @@
       </div>
     </div>
 
+    <!-- Kanboard -->
     <div class="root-container__kanban-board">
       <div class="column-item" :class="column.deleted_at != null ? 'deleted-column-item':''" v-for="(column,colIndex) in columns" :key="colIndex+column.id">
         <div class="column-item__header">
@@ -248,7 +249,6 @@
 
       handleCardMoved(event) {
         if(!event || event.removed) return false;
-
         axios.put(
           `${process.env.VUE_APP_API_BASE_URL}/columns/rearrange?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`, {columns: this.columns}
         )
