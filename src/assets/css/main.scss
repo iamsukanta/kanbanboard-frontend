@@ -183,6 +183,11 @@ body {
         }
       }
 
+      .deleted-column-item {
+        background-color: rgba(0, 0, 0, 0.8);
+        cursor: not-allowed;
+      }
+
       .add-column {
         text-align: center;
         &__button {

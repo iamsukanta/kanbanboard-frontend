@@ -36,7 +36,7 @@
           Cancel
         </button>
         <button type="submit" class="modal-button-group__submit-button">
-          Edit Card
+          {{ card?.id ? 'Edit':'Add' }} Card
         </button>
       </div>
     </form>

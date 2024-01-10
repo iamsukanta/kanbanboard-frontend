@@ -14,7 +14,7 @@
         <label for="columnStatus">
           Select Status
         </label>
-        <select v-model="filter.status" @change="getColumns()" id="columnStatus" class="root-container__filter-section__status__form">
+        <select v-model="filter.status" @change="filterColumnsByStatusAndDate()" id="columnStatus" class="root-container__filter-section__status__form">
           <option value="1">Active</option>
           <option value="0">Delete</option>
           <option value="">All</option>
@@ -25,8 +25,8 @@
           Select Date
         </label>
         <div class="root-container__filter-section__date__form">
-          <input type="date" class="root-container__filter-section__date__form__input" @change="filterColumnsByDate()" v-model="filter.date" />
-          <button type="button" @click="clearDate()" class="root-container__filter-section__date__form__input__clear-button">
+          <input type="date" class="root-container__filter-section__date__form__input" @change="filterColumnsByStatusAndDate()" v-model="filter.date" />
+          <button type="button" @click="clearDate()" v-if="filter.date" class="root-container__filter-section__date__form__input__clear-button">
             Clear Date
           </button>
         </div>
@@ -34,12 +34,12 @@
     </div>
 
     <div class="root-container__kanban-board">
-      <div class="column-item" v-for="(column,colIndex) in columns" :key="colIndex+column.id">
+      <div class="column-item" :class="column.deleted_at != null ? 'deleted-column-item':''" v-for="(column,colIndex) in columns" :key="colIndex+column.id">
         <div class="column-item__header">
           <div class="column-item__header__title">
             <p>{{ column.title }}</p>
           </div>
-          <button type="button" @click="deleteColumn(column.id)" class="column-item__header__delete__button">
+          <button type="button" v-if="column.deleted_at == null" @click="deleteColumn(column.id)" class="column-item__header__delete__button">
             &times;
           </button>
         </div>
@@ -88,8 +88,8 @@
   import 'vue-loading-overlay/dist/vue-loading.css';
   import axios from 'axios';
   import draggable from 'vuedraggable';
-  import AddColumnModal from './modal/AddColumn.vue';
-  import AddEditCardModal from './modal/AddEditCard.vue';
+  import AddColumnModal from '../components/modal/AddColumn.vue';
+  import AddEditCardModal from '../components/modal/AddEditCard.vue';
 
   export default {
     components: {
@@ -122,6 +122,13 @@
       }
     },
     mounted() {
+      const routeParams = { ...this.$route.query };
+      if(routeParams.status) {
+        this.filter.status = routeParams.status;
+      }
+      if(routeParams.date) {
+        this.filter.date = routeParams.date;
+      }
       this.getColumns();
     },
     methods: {
@@ -145,11 +152,11 @@
       clearDate() {
         if(this.filter.date) {
           this.filter.date = '';
-          this.getColumns();
+          this.filterColumnsByStatusAndDate();
         }
       },
 
-      filterColumnsByDate() {
+      filterColumnsByStatusAndDate() {
         const currentParams = { ...this.$route.query };
         currentParams.date = this.filter.date;
         currentParams.state = this.filter.status;
@@ -157,8 +164,8 @@
           path: this.$route.path,
           query: currentParams,
         });
+        this.getColumns();
       },
-
 
       openAddColumnModal() {
         this.$modal.show(
