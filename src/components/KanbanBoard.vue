@@ -10,9 +10,30 @@
 
     <!-- Filter section goes heres -->
     <div class="root-container__filter-section">
+      <div class="root-container__filter-section__status">
+        <label for="columnStatus">
+          Select Status
+        </label>
+        <select v-model="filter.status" @change="getColumns()" id="columnStatus" class="root-container__filter-section__status__form">
+          <option value="1">Active</option>
+          <option value="0">Delete</option>
+          <option value="">All</option>
+        </select>
+      </div>
+      <div class="root-container__filter-section__date">
+        <label for="columnStatus">
+          Select Date
+        </label>
+        <div class="root-container__filter-section__date__form">
+          <input type="date" class="root-container__filter-section__date__form__input" @change="filterColumnsByDate()" v-model="filter.date" />
+          <button type="button" @click="clearDate()" class="root-container__filter-section__date__form__input__clear-button">
+            Clear Date
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="kanban-board">
+    <div class="root-container__kanban-board">
       <div class="column-item" v-for="(column,colIndex) in columns" :key="colIndex+column.id">
         <div class="column-item__header">
           <div class="column-item__header__title">
@@ -93,6 +114,10 @@
           width: 500,
           height: 'auto',
           adaptive: true
+        },
+        filter: {
+          status: 1,
+          date: ''
         }
       }
     },
@@ -103,7 +128,7 @@
       async getColumns() {
         this.isLoading = true;
         axios.get(
-          `${process.env.VUE_APP_API_BASE_URL}/columns?access_token=${process.env.VUE_APP_ACCESS_TOKEN}`
+          `${process.env.VUE_APP_API_BASE_URL}/columns?access_token=${process.env.VUE_APP_ACCESS_TOKEN}&status=${this.filter.status}&date=${this.filter.date}`
         )
         .then((res) => {
           this.columns = res.data.data;
@@ -116,6 +141,24 @@
           this.isLoading = false;
         });
       },
+
+      clearDate() {
+        if(this.filter.date) {
+          this.filter.date = '';
+          this.getColumns();
+        }
+      },
+
+      filterColumnsByDate() {
+        const currentParams = { ...this.$route.query };
+        currentParams.date = this.filter.date;
+        currentParams.state = this.filter.status;
+        this.$router.push({ 
+          path: this.$route.path,
+          query: currentParams,
+        });
+      },
+
 
       openAddColumnModal() {
         this.$modal.show(

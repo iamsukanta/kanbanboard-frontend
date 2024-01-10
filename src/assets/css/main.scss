@@ -48,8 +48,60 @@ body {
       }
     }
 
-    .kanban-board {
-      margin-top: 50px;
+    &__filter-section {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      @media screen and (min-width: $medium) {
+        flex-direction: row;
+      }
+
+      &__status {
+        display: flex;
+        flex-direction: column;
+        label {
+          font-size: 14px;
+        }
+        &__form {
+          width: 140px;
+          padding: 10px;
+          border: 1px solid #CCCCCC;
+          border-radius: 7px;
+        }
+      }
+      &__date {
+        display: flex;
+        flex-direction: column;
+        label {
+          font-size: 14px;
+        }
+        &__form {
+          display: flex;
+          flex-direction: row;
+          gap: 5px;
+          &__input {
+            width: 140px;
+            padding: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 7px;
+          }
+          &__input__clear-button {
+            @include common-button-feature;
+            background-color: $button-gray-color;
+            padding: 10px;
+            color: $color-white;
+            &:hover {
+              background-color: $button-dark-hover-color;
+            }
+          }
+        }
+      }
+    }
+
+    &__kanban-board {
+      margin-top: 30px;
       display: grid;
       grid-template-columns: repeat(1, minmax(0, 1fr));
       gap: 20px;
