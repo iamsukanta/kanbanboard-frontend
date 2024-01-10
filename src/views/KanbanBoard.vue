@@ -161,7 +161,7 @@
         currentParams.date = this.filter.date;
         currentParams.state = this.filter.status;
         this.$router.push({ 
-          path: this.$route.path,
+          path: '/',
           query: currentParams,
         });
         this.getColumns();
